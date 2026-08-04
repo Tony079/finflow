@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002" author="tataji.g">
+
+        <createTable tableName="auth_session">
+
+            <column name="id" type="UUID">
+                <constraints
+                        nullable="false"
+                        primaryKey="true"
+                        primaryKeyName="pk_auth_session"/>
+            </column>
+
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="token_hash" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="token_family_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="expires_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="revoked_at" type="timestamp"/>
+
+            <column name="replaced_by_session_id" type="UUID"/>
+
+            <column name="last_used_at" type="timestamp"/>
+
+            <column name="created_at"
+                    type="timestamp"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+
+        <addForeignKeyConstraint
+                baseTableName="auth_session"
+                baseColumnNames="user_id"
+                referencedTableName="auth_user"
+                referencedColumnNames="id"
+                constraintName="fk_auth_session_user"/>
+
+
+        <addForeignKeyConstraint
+                baseTableName="auth_session"
+                baseColumnNames="replaced_by_session_id"
+                referencedTableName="auth_session"
+                referencedColumnNames="id"
+                constraintName="fk_auth_session_replacement"/>
+
+
+        <addUniqueConstraint
+                tableName="auth_session"
+                columnNames="token_hash"
+                constraintName="uk_auth_session_token_hash"/>
+
+
+        <createIndex
+                tableName="auth_session"
+                indexName="idx_auth_session_user_id">
+
+            <column name="user_id"/>
+
+        </createIndex>
+
+        <createIndex
+                tableName="auth_session"
+                indexName="idx_auth_session_token_family_id">
+
+            <column name="token_family_id"/>
+
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
