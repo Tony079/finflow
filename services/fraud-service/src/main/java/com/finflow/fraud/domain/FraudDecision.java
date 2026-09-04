@@ -1,4 +1,10 @@
 package com.finflow.fraud.domain;
 
-public class FraudDecision {
+public enum FraudDecision {
+
+    APPROVED,
+
+    REVIEW,
+
+    REJECTED
 }

@@ -2,10 +2,11 @@ package com.finflow.fraud.service;
 
 import com.finflow.fraud.domain.InboxEvent;
 import com.finflow.fraud.repository.InboxEventRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -16,30 +17,63 @@ public class InboxService {
     private final InboxEventRepository inboxEventRepository;
 
     @Transactional
-    public void execute(
+    public boolean createInboxEvent(
             UUID eventId,
             String eventType,
             String aggregateType,
-            UUID aggregateId,
-            Runnable businessLogic) {
+            UUID aggregateId) {
 
-        try {
+        int inserted =
+                inboxEventRepository.insertIfNotExists(
+                        UUID.randomUUID(),
+                        eventId,
+                        eventType,
+                        aggregateType,
+                        aggregateId
+                );
 
-            InboxEvent inboxEvent = new InboxEvent(
-                    eventId,
-                    eventType,
-                    aggregateType,
-                    aggregateId
+        if (inserted == 0) {
+
+            System.out.println(
+                    "Duplicate event ignored: " + eventId
             );
 
-            inboxEventRepository.save(inboxEvent);
-
-        } catch (DataIntegrityViolationException ex) {
-
-            // Event already processed
-            return;
+            return false;
         }
 
-        businessLogic.run();
+        return true;
+    }
+
+    @Transactional
+    public void markProcessing(UUID eventId) {
+
+        InboxEvent inboxEvent =
+                inboxEventRepository
+                        .findByEventId(eventId)
+                        .orElseThrow();
+
+        inboxEvent.markProcessing();
+    }
+
+    @Transactional
+    public void markCompleted(UUID eventId) {
+
+        InboxEvent inboxEvent =
+                inboxEventRepository
+                        .findByEventId(eventId)
+                        .orElseThrow();
+
+        inboxEvent.markCompleted();
+    }
+
+    @Transactional
+    public void markFailed(UUID eventId) {
+
+        InboxEvent inboxEvent =
+                inboxEventRepository
+                        .findByEventId(eventId)
+                        .orElseThrow();
+
+        inboxEvent.markFailed();
     }
 }

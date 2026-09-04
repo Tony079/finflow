@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="fraud-service#3" author="tataji.g">
+
+        <comment>
+            Add status and received_at columns to INBOX_EVENT
+        </comment>
+
+        <addColumn tableName="INBOX_EVENT">
+
+            <column name="STATUS" type="varchar(20)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="RECEIVED_AT" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+
+        </addColumn>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -8,5 +8,7 @@
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include file="db/changelog/001-create-inbox-event-table.xml"/>
-
+    <include file="db/changelog/002-create-fraud-result-table.xml"/>
+    <include file="db/changelog/003-update-inbox-event-table.xml"/>
+    <include file="db/changelog/004-fix-inbox-processed-at.xml"/>
 </databaseChangeLog>

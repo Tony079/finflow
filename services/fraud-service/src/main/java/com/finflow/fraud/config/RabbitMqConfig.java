@@ -1,9 +1,7 @@
 package com.finflow.fraud.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,24 +18,36 @@ public class RabbitMqConfig {
             "payment.created";
 
     @Bean
-    public DirectExchange paymentExchange() {
-        return new DirectExchange(PAYMENT_EXCHANGE, true, false);
+    public Queue paymentCreatedQueue(AmqpAdmin amqpAdmin) {
+        Queue queue = new Queue(PAYMENT_CREATED_QUEUE, true);
+        amqpAdmin.declareQueue(queue);
+        return queue;
     }
 
     @Bean
-    public Queue paymentCreatedQueue() {
-        System.out.println("Creating fraud queue...");
-        return new Queue(PAYMENT_CREATED_QUEUE, true);
+    public DirectExchange paymentExchange(AmqpAdmin amqpAdmin) {
+        DirectExchange exchange =
+                new DirectExchange(PAYMENT_EXCHANGE, true, false);
+
+        amqpAdmin.declareExchange(exchange);
+
+        return exchange;
     }
 
     @Bean
     public Binding paymentCreatedBinding(
             Queue paymentCreatedQueue,
-            DirectExchange paymentExchange) {
+            DirectExchange paymentExchange,
+            AmqpAdmin amqpAdmin) {
 
-        return BindingBuilder
+        Binding binding = BindingBuilder
                 .bind(paymentCreatedQueue)
                 .to(paymentExchange)
                 .with(PAYMENT_CREATED_ROUTING_KEY);
+
+        amqpAdmin.declareBinding(binding);
+
+        return binding;
     }
+
 }

@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.UUID;
@@ -25,14 +26,18 @@ public class PaymentService {
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
+    private final RedisService redisService;
+
     public PaymentService(
             PaymentRepository paymentRepository,
             OutboxEventRepository outboxEventRepository,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            RedisService redisService) {
 
         this.paymentRepository = paymentRepository;
         this.outboxEventRepository = outboxEventRepository;
         this.objectMapper = objectMapper;
+        this.redisService = redisService;
     }
 
     @Transactional
@@ -122,13 +127,47 @@ public class PaymentService {
             UUID userId,
             UUID paymentId) {
 
+        String cacheKey =
+                "payment:" + userId + ":" + paymentId;
+
+        // 1. Check Redis
+        PaymentResponse cachedPayment =
+                redisService.getObject(
+                        cacheKey,
+                        PaymentResponse.class
+                );
+
+        if (cachedPayment != null) {
+
+            System.out.println(
+                    "Redis cache HIT: " + cacheKey
+            );
+
+            return cachedPayment;
+        }
+
+        System.out.println(
+                "Redis cache MISS: " + cacheKey
+        );
+
+        // 2. Redis miss → query PostgreSQL
         Payment payment = paymentRepository
                 .findById(paymentId)
                 .filter(existing ->
                         existing.getUserId().equals(userId))
                 .orElseThrow(PaymentNotFoundException::new);
 
-        return toResponse(payment);
+        PaymentResponse response =
+                toResponse(payment);
+
+        // 3. Store in Redis
+        redisService.setObject(
+                cacheKey,
+                response,
+                Duration.ofMinutes(10)
+        );
+
+        return response;
     }
 
     private void createPaymentCreatedOutboxEvent(

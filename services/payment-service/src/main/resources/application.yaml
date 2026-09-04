@@ -13,13 +13,11 @@ spring:
 
     template:
       mandatory: true
-  outbox:
-    publisher:
-      fixed-delay: 5000
+
   datasource:
-    url: jdbc:postgresql://localhost:5433/payment_db
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/payment_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
 
   jpa:
     hibernate:
@@ -29,5 +27,14 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 server:
-  port: 8082
+  port: 8087
+
+outbox:
+  publisher:
+    fixed-delay: 5000

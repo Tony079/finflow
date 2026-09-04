@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="fraud-service#2" author="tataji.g">
+
+        <comment>Create FRAUD_RESULT table</comment>
+
+        <createTable tableName="FRAUD_RESULT">
+
+            <column name="ID" type="uuid">
+                <constraints
+                        primaryKey="true"
+                        primaryKeyName="PK_FRAUD_RESULT"
+                        nullable="false"/>
+            </column>
+
+            <column name="EVENT_ID" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="PAYMENT_ID" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="RISK_SCORE" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="DECISION" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="REASON" type="varchar(255)"/>
+
+            <column name="CREATED_AT" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="FRAUD_RESULT"
+                columnNames="EVENT_ID"
+                constraintName="UK_FRAUD_RESULT_EVENT_ID"/>
+
+        <createIndex
+                tableName="FRAUD_RESULT"
+                indexName="IDX_FRAUD_RESULT_PAYMENT_ID">
+
+            <column name="PAYMENT_ID"/>
+
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

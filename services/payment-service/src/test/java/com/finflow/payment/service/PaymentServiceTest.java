@@ -33,6 +33,9 @@ class PaymentServiceTest {
     private PaymentService paymentService;
 
     @Mock
+    private RedisService redisService;
+
+    @Mock
     private OutboxEventRepository outboxEventRepository;
 
     private ObjectMapper objectMapper;
@@ -46,7 +49,8 @@ class PaymentServiceTest {
         paymentService = new PaymentService(
                 paymentRepository,
                 outboxEventRepository,
-                objectMapper
+                objectMapper,
+                redisService
         );
     }
 
@@ -131,8 +135,6 @@ class PaymentServiceTest {
                 response.paymentId()
         );
 
-        verify(paymentRepository, never())
-                .save(any());
         verify(paymentRepository, never())
                 .save(any());
 
