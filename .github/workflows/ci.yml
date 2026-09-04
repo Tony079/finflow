@@ -14,16 +14,45 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
+
+      auth-db:
+        image: postgres:17
+        env:
+          POSTGRES_DB: auth_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d auth_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      payment-db:
         image: postgres:17
         env:
           POSTGRES_DB: payment_db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd="pg_isready -U postgres -d payment_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      fraud-db:
+        image: postgres:17
+        env:
+          POSTGRES_DB: fraud_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d fraud_db"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
