@@ -3,9 +3,9 @@ spring:
     name: fraud-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/fraud_db
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/fraud_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -20,18 +20,20 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
 
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
 
     publisher-confirm-type: correlated
     publisher-returns: true
 
     template:
       mandatory: true
+
 server:
   port: 8082
+
 logging:
   level:
     org.springframework.amqp: DEBUG
