@@ -31,6 +31,15 @@ spring:
     template:
       mandatory: true
 
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health
+      endpoint:
+        health:
+          probes:
+            enabled: true
 server:
   port: 8082
 
