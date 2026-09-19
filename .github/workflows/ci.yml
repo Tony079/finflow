@@ -107,3 +107,10 @@ jobs:
           push: true
           tags: |
             ghcr.io/tony079/finflow/payment-service:latest
+      - name: Build and push fraud-service
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/fraud-service
+          push: true
+          tags: |
+            ghcr.io/tony079/finflow/fraud-service:latest
